@@ -1,0 +1,65 @@
+---
+title: "HW1_Sloppy_Printer"
+author: "Tingrui Huang"
+date: "September 12, 2018"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Sloppy Pinter Problem -
+
+```{r}
+#Adding image
+image_book = 'https://elgarblog.files.wordpress.com/2014/01/education-books.jpg'
+if (!file.exists(image <- 'education-books.jpg'))
+  download.file(image_book,image,mode = 'wb')
+knitr::include_graphics(if(identical(knitr:::pandoc_to(),'html')) image_book else image)
+```
+Step 1. Explore the Poisson distribution by using "rpois" in R:
+
+
+Poisson Distribution - $P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$
+
+
+We have already known the lamda =2, and we assume n=500 (since most books doesn't have pages more than 500). We get the estimated range of the distribution is [0,7] (by observing the outcomes), therefore, I decide to set "n"(number of misprints) up to 7, and "p"(number of pages of a book) up to 500.
+
+Step 2. Conducting simulations in R.
+
+```{r }
+#Randomly select pages for ten books and sort the outcome
+set.seed(2018)
+p <- c(sort(ceiling(runif(10,100,500))))
+
+#Specify the range of number of misprints
+n <- c(as.integer(0:7))
+
+#Create temporary tables for storing data points in loop
+temptab <- c()
+over_n <- c()
+
+#Calculate number of errors for each pages and how many pages has errors larger than n.
+for (i in 1:10) {
+  for (k in 1:8) {
+    n_misp <- rpois(p[i],2)
+    over_n[k] <- sum(n[k]<n_misp)
+  }
+  temptab <- cbind(temptab,over_n)
+}
+
+#Build a data frame and transfer data from the temporary table to here.
+sumtab <- as.data.frame(temptab,row.names = n)
+  header <- paste(p, "pages", sep = "")
+  colnames(sumtab) = header
+  
+#Refine the table by using Kable
+kable(sumtab)
+
+```
+
