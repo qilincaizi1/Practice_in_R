@@ -1,9 +1,10 @@
 ---
 title: "HW1_Sloppy_Printer"
 author: "Tingrui Huang"
-date: "September 12, 2018"
+date: "September 16, 2018"
 output:
   pdf_document: default
+  word_document: default
   html_document:
     df_print: paged
 ---
@@ -22,40 +23,43 @@ if (!file.exists(image <- 'education-books.jpg'))
   download.file(image_book,image,mode = 'wb')
 knitr::include_graphics(if(identical(knitr:::pandoc_to(),'html')) image_book else image)
 ```
-Step 1. Explore the Poisson distribution by using "rpois" in R:
+Step 1. Understand background information
+We have known the average errors the printer makes is 2, therefore we assume the distribution of the number of misprints on each page would be a Poisson distribution with $\lambda$ =2
+  Poisson Distribution - $P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$
+
+In this problem, we are going to figure out the probability P_k of the situation when there are more than k misprints on each page:
+  therefore, P_k=1-ppois(k, lambda=2)
 
 
-Poisson Distribution - $P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$
-
-
-We have already known the lamda =2, and we assume n=500 (since most books doesn't have pages more than 500). We get the estimated range of the distribution is [0,7] (by observing the outcomes), therefore, I decide to set "n"(number of misprints) up to 7, and "p"(number of pages of a book) up to 500.
-
-Step 2. Conducting simulations in R.
+Step 2. Modeling in R
 
 ```{r }
-#Randomly select pages for ten books and sort the outcome
-set.seed(2018)
-p <- c(sort(ceiling(runif(10,100,500))))
+options(digits = 3)
+options(scipen = 999)
+#Assume the range of misprints per page is [0,8], total page = 50
+k <- c(0:8)
+pages <- c(1:51)
 
-#Specify the range of number of misprints
-n <- c(as.integer(0:7))
+#Use Poisson Distribution to estimate the number of misprints per page
+misp_1 <- ppois(k,2)
+misp_2 <- dpois(k,2)
 
 #Create temporary tables for storing data points in loop
-temptab <- c()
-over_n <- c()
+temptab <- rep(NULL,51)
+over_k <- c()
 
 #Calculate number of errors for each pages and how many pages has errors larger than n.
-for (i in 1:10) {
-  for (k in 1:8) {
-    n_misp <- rpois(p[i],2)
-    over_n[k] <- sum(n[k]<n_misp)
+for (i in 1:9) {
+  for (j in 1:51) {
+    misp_ep <- misp_1[i]
+    over_k[j] <- pbinom(j,50,misp_ep)-pbinom(j-1,50,misp_ep)
   }
-  temptab <- cbind(temptab,over_n)
+  temptab <- cbind(temptab,over_k)
 }
 
 #Build a data frame and transfer data from the temporary table to here.
-sumtab <- as.data.frame(temptab,row.names = n)
-  header <- paste(p, "pages", sep = "")
+sumtab <- as.data.frame(temptab, row.names(pages))
+  header <- paste(k, "misprints", sep = "")
   colnames(sumtab) = header
   
 #Refine the table by using Kable
