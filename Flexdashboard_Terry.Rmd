@@ -1,0 +1,131 @@
+---
+title: "FlexDashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dygraphs)
+library(maps)
+library(d3heatmap)
+library(knitr)
+library(rbokeh)
+```
+
+Page 1 {data-navmenu="Try it Out"}
+===================================== 
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+dygraph(cars)
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+dygraph(pressure)
+```
+
+### Chart C
+
+```{r}
+dygraph(airquality)
+```
+
+Page 2 {data-navmenu="Try it Out"}
+=====================================
+### Lung Deaths (All)
+
+```{r}
+dygraph(ldeaths)
+```
+
+### Lung Deaths (Male)
+
+```{r}
+dygraph(mdeaths)
+```
+
+### Lung Deaths (Female)
+
+```{r}
+dygraph(fdeaths)
+```
+
+
+Page 3 {data-navmenu="Maps"}
+=====================================
+
+### World map
+
+```{r }
+map("world")
+```
+
+### State map
+
+```{r }
+map("state")
+```
+
+Page 4 {data-navmenu="NBA Performance"}
+=====================================
+```{r }
+url <- "http://datasets.flowingdata.com/ppg2008.csv"
+nba_players <- read.csv(url, row.names = 1)
+```
+
+### Stats by Player {data-width=650}
+
+```{r}
+d3heatmap(nba_players, scale = "column")
+```
+
+### Top Scorers {data-width=350}
+
+```{r}
+knitr::kable(nba_players[1:20,c("G", "MIN", "PTS")])
+```
+
+Page 5 {data-navmenu="Iris"}
+=====================================
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+### Species
+
+```{r}
+figure(width = NULL, height = NULL) %>%
+  ly_points(Sepal.Length, Sepal.Width, data = iris, color = Species)
+# figure() %>%
+#   ly_points(Sepal.Length, Sepal.Width, data = iris,
+#     color = Species, glyph = Species)
+```
+
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Species (Quantile)
+
+```{r}
+figure(width = NULL, height = NULL, legend_location = "top_left") %>%
+  ly_quantile(Sepal.Length, group = Species, data = iris)
+```
+
+### Petal Width
+
+```{r}
+figure(width = NULL, height = NULL) %>%
+  ly_points(Sepal.Length, Sepal.Width, data = iris,
+    color = Petal.Width)
+```
